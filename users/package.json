@@ -1,0 +1,38 @@
+{
+  "name": "users",
+  "version": "1.0.0",
+  "description": "",
+  "devDependencies": {
+    "@shelf/jest-dynamodb": "^3.4.4",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^22.1.0",
+    "aws-sdk": "^2.1668.0",
+    "eslint": "^9.8.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.9.0",
+    "jest": "^29.7.0",
+    "prettier": "3.3.3",
+    "serverless-offline": "^14.0.0",
+    "ts-jest": "^29.2.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.0.1"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.585.0",
+    "@aws-sdk/lib-dynamodb": "^3.585.0",
+    "express": "^4.19.2",
+    "serverless-http": "^3.2.0",
+    "zod": "^3.23.8"
+  },
+  "scripts": {
+    "dev": "serverless offline",
+    "deploy": "serverless deploy",
+    "test": "jest",
+    "lint": "npx eslint ./ --fix",
+    "db:local": "java -D'java.library.path=./DynamoDBLocal_lib' -jar DynamoDBLocal.jar  -port 8001",
+    "db:localTables": "aws dynamodb list-tables --endpoint-url http://localhost:8001",
+    "db:createUserTable": "aws dynamodb create-table --table-name users --attribute-definitions AttributeName=userId,AttributeType=S --key-schema AttributeName=userId,KeyType=HASH --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --endpoint-url http://localhost:8001"
+  }
+}
