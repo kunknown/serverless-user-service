@@ -31,8 +31,8 @@
     "deploy": "serverless deploy",
     "test": "jest",
     "lint": "npx eslint ./ --fix",
-    "db:local": "java -D'java.library.path=./DynamoDBLocal_lib' -jar DynamoDBLocal.jar  -port 8001",
-    "db:localTables": "aws dynamodb list-tables --endpoint-url http://localhost:8001",
-    "db:createUserTable": "aws dynamodb create-table --table-name users --attribute-definitions AttributeName=userId,AttributeType=S --key-schema AttributeName=userId,KeyType=HASH --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --endpoint-url http://localhost:8001"
+    "db:local": "cd .. && cd dynamodb-local && java -D'java.library.path=./DynamoDBLocal_lib' -jar DynamoDBLocal.jar  -port 8001",
+    "db:list": "aws dynamodb list-tables --endpoint-url http://localhost:8001",
+    "db:create": "aws dynamodb create-table --table-name users --attribute-definitions AttributeName=userId,AttributeType=S --key-schema AttributeName=userId,KeyType=HASH --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --endpoint-url http://localhost:8001"
   }
 }

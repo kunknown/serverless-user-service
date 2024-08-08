@@ -8,7 +8,7 @@ service: users
 stages:
   default:
     params:
-      tableName: "users-table-${sls:stage}"
+      tableName: "${env:USERS_TABLE, 'users'}"
 
 plugins:
   - serverless-offline
@@ -30,7 +30,7 @@ provider:
           Resource:
             - Fn::GetAtt: [UsersTable, Arn]
   environment:
-    USERS_TABLE: ${param:tableName}
+    USERS_TABLE: ${env:USERS_TABLE, 'users'}
 
 functions:
   api:
@@ -46,8 +46,20 @@ resources:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
+          - AttributeName: firstName
+            AttributeType: S
+          - AttributeName: lastName
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+          - AttributeName: dob
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+          - AttributeName: updatedAt
+            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
-        TableName: ${param:tableName}
+        TableName: ${env:USERS_TABLE, 'users'}

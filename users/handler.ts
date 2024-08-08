@@ -1,4 +1,4 @@
-import { DynamoDBClient, DynamoDB } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
 import { z } from 'zod';
 
@@ -7,45 +7,26 @@ import {
   GetCommand,
   PutCommand,
   UpdateCommand,
-  DeleteCommand,
-  DynamoDBDocument
+  DeleteCommand
 } from "@aws-sdk/lib-dynamodb";
 
 import express, {Request, Response} from "express";
 import serverless from "serverless-http";
+import { JEST_DYNAMO_DB_CLIENT_CONFIG, JEST_DYNAMO_DB_DOCUMENT_CLIENT_TRANSLATE_CONFIG } from "./lib/constants";
+import { Params, User, UserId } from "./lib/types-interfaces";
 
 const app = express();
 console.log('JEST_WORKER_ID:', process.env.JEST_WORKER_ID);
 const isTest = process.env.JEST_WORKER_ID;
-const testClient = new DynamoDBClient({
-  endpoint: 'http://localhost:8001',
-  region: 'local-env',
-  credentials: {
-    accessKeyId: 'fakeAccessKeyId',
-    secretAccessKey: 'fakeSecretAccessKey',
-  }
-});
+const testClient = new DynamoDBClient(JEST_DYNAMO_DB_CLIENT_CONFIG);
 
-const USERS_TABLE = process.env.USERS_TABLE;
+const USERS_TABLE = process.env.USERS_TABLE ?? 'users';
+console.log('user_table,', process.env.USERS_TABLE);
 const client = new DynamoDBClient();
-export const docClient = isTest ? DynamoDBDocumentClient.from(testClient, {marshallOptions: {convertEmptyValues: true}}) : DynamoDBDocumentClient.from(client);
+export const docClient = isTest ? DynamoDBDocumentClient.from(testClient, JEST_DYNAMO_DB_DOCUMENT_CLIENT_TRANSLATE_CONFIG) : DynamoDBDocumentClient.from(client);
 console.log('docClient', docClient);
 
 app.use(express.json());
-
-export type User = {
-  userId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  dob: Date;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-type UserId = User["userId"];
-
-export interface Params { userId: string };
 
 export async function getHello(req: Request<Params>, res: Response) {
   const { userId }: {userId: UserId} = req.params;
