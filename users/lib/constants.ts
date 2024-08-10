@@ -15,3 +15,12 @@ export const JEST_DYNAMO_DB_DOCUMENT_CLIENT_TRANSLATE_CONFIG: TranslateConfig = 
     convertClassInstanceToMap: true
   }};
 
+  export const USER_EXPRESSION_NAMES: {[key: string]: string} = {
+    userId: 'UI',
+    firstName: 'FN',
+    lastName: 'LN',
+    email: 'E',
+    dob: 'DOB',
+    createdAt: 'CA',
+    updatedAt: 'UA',
+  }
