@@ -8,7 +8,7 @@ service: users
 stages:
   default:
     params:
-      tableName: "${env:USERS_TABLE, 'users'}"
+      tableName: "${env:AWS_USERS_TABLE, 'users'}"
 
 plugins:
   - serverless-offline
@@ -28,15 +28,36 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - Fn::GetAtt: [UsersTable, Arn]
+            - Fn::GetAtt: 
+              - AwsUsersTable
+              - Arn
+        - Effect: Allow
+          Action:
+            - apigateway:DELETE
+            - apigateway:PUT
+            - apigateway:POST
+            - apigateway:GET
+          Resource: "*"
+
   environment:
-    USERS_TABLE: ${env:USERS_TABLE, 'users'}
+    AWS_USERS_TABLE: ${env:AWS_USERS_TABLE, 'users'}
 
 functions:
   api:
     handler: handler.handler
     events:
-      - httpApi: "*"
+      - httpApi:
+          path: /users/{userId}
+          method: get
+      - httpApi:
+          path: /users
+          method: post
+      - httpApi:
+          path: /users/{userId}
+          method: put
+      - httpApi:
+          path: /users/{userId}
+          method: delete
 
 resources:
   Resources:
@@ -46,20 +67,8 @@ resources:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
-          - AttributeName: firstName
-            AttributeType: S
-          - AttributeName: lastName
-            AttributeType: S
-          - AttributeName: email
-            AttributeType: S
-          - AttributeName: dob
-            AttributeType: S
-          - AttributeName: createdAt
-            AttributeType: S
-          - AttributeName: updatedAt
-            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
-        TableName: ${env:USERS_TABLE, 'users'}
+        TableName: ${env:AWS_USERS_TABLE, 'users'}

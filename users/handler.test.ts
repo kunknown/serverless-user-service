@@ -13,16 +13,6 @@ const zodErrors = {
   dob: { error: { _errors: [], dob: { _errors: ["Invalid date"]} } },
 };
 
-
-// const testClient = new DynamoDBClient({
-//   endpoint: 'http://localhost:8001',
-//   region: 'local-env',
-//   credentials: {
-//     accessKeyId: 'fakeAccessKeyId',
-//     secretAccessKey: 'fakeSecretAccessKey',
-//   }
-// });
-// const testDocClient = DynamoDBDocumentClient.from(testClient, {marshallOptions: {convertEmptyValues: true}})
 describe('Lambda function users', () => {
   beforeEach(() => {
     jest.resetAllMocks();
@@ -170,5 +160,18 @@ describe('Lambda function users', () => {
       // const response = await testDocClient.send(new GetCommand({TableName: tableName, Key: {userId: mockUser.userId}}));
       expect(deletedItem.Attributes).toEqual({...mockUser, lastName: "potato"});
     });
+  });
+
+  it.skip('adHoc delete item from DynamoDB', async () => {
+    const mockReq = mockRequestWithParams({userId: '2'});
+    const mockRes = mockResponse();
+    await deleteUser(mockReq as Request<Params>, mockRes as Response);
+    expect(mockRes.status).toHaveBeenCalledWith(200);
+  });
+  it.skip('adHoc insert item from DynamoDB', async () => {
+    const mockReq = mockRequestWithParams(undefined, {...mockUserDefault, userId: '0'});
+    const mockRes = mockResponse();
+    await postUser(mockReq as Request<Params>, mockRes as Response);
+    expect(mockRes.status).toHaveBeenCalledWith(200);
   });
 });

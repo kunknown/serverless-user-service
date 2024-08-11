@@ -1,11 +1,12 @@
+import { DynamoDBClientConfig } from "@aws-sdk/client-dynamodb";
 import { TranslateConfig } from "@aws-sdk/lib-dynamodb";
 
-export const JEST_DYNAMO_DB_CLIENT_CONFIG = {
+export const DEV_DB_CLIENT_CONFIG: DynamoDBClientConfig = {
   endpoint: 'http://localhost:8001',
   region: 'local-env',
   credentials: {
-    accessKeyId: 'fakeAccessKeyId',
-    secretAccessKey: 'fakeSecretAccessKey',
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'fakeAccessKeyId',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'fakeSecretAccessKey',
   }
 };
 

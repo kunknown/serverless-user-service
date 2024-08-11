@@ -1,7 +1,6 @@
 import { DynamoDBClient, DynamoDBServiceException } from "@aws-sdk/client-dynamodb";
-
+import dotenv from 'dotenv';
 import { z } from 'zod';
-
 import { randomUUID } from "crypto";
 
 import {
@@ -18,19 +17,20 @@ import {
 
 import express, {Request, Response} from "express";
 import serverless from "serverless-http";
-import { JEST_DYNAMO_DB_CLIENT_CONFIG, JEST_DYNAMO_DB_DOCUMENT_CLIENT_TRANSLATE_CONFIG, USER_EXPRESSION_NAMES } from "./lib/constants";
+import { DEV_DB_CLIENT_CONFIG, JEST_DYNAMO_DB_DOCUMENT_CLIENT_TRANSLATE_CONFIG, USER_EXPRESSION_NAMES } from "./lib/constants";
 import { Params, User, UserId } from "./lib/types-interfaces";
 
+dotenv.config();
 const app = express();
 // console.log('JEST_WORKER_ID:', process.env.JEST_WORKER_ID);
 const isTest = process.env.JEST_WORKER_ID;
-const testClient = new DynamoDBClient(JEST_DYNAMO_DB_CLIENT_CONFIG);
-
-const USERS_TABLE = process.env.USERS_TABLE ?? 'users';
+const isOffline = process.env.IS_OFFLINE;
+// console.log('.env', process.env);
+const USERS_TABLE = process.env.AWS_USERS_TABLE ?? 'users';
 // console.log('user_table,', process.env.USERS_TABLE);
-const client = new DynamoDBClient();
-export const docClient = isTest ? DynamoDBDocumentClient.from(testClient, JEST_DYNAMO_DB_DOCUMENT_CLIENT_TRANSLATE_CONFIG) : DynamoDBDocumentClient.from(client);
-console.log('docClient: ', isTest, JSON.stringify(docClient));
+const client = isOffline || isTest ? new DynamoDBClient(DEV_DB_CLIENT_CONFIG) : new DynamoDBClient();
+export const docClient = isTest ? DynamoDBDocumentClient.from(client, JEST_DYNAMO_DB_DOCUMENT_CLIENT_TRANSLATE_CONFIG) : DynamoDBDocumentClient.from(client);
+// console.log('docClient: ', isTest, JSON.stringify(docClient));
 
 const User = z.object({
   userId: z.string(),
@@ -57,7 +57,7 @@ app.use(express.json());
 // app.get("/hello/:userId", getHello);
 
 export async function getUser(req: Request<Params>, res: Response) {
-  // console.log('/users/:userId API hit!')
+  console.log('/users/:userId API hit!')
   const {userId}: {userId: UserId} = req.params;
   const params: GetCommandInput = {
     TableName: USERS_TABLE,
@@ -69,7 +69,7 @@ export async function getUser(req: Request<Params>, res: Response) {
     const command = new GetCommand(params);
     const response = await docClient.send(command);
     // console.log('docClient.send', docClient.send(command));
-    // console.log('response', response);
+    console.log('response', response);
     // const Item = response.Item as User;
     if (response.Item) {
       res.status(200).json(response.Item as User);
@@ -91,7 +91,7 @@ export async function postUser(req: Request, res: Response) {
   const newFields = isTest ? {} : {userId: randomUUID(), createdAt: now, updatedAt: now}
   const item: User = {...(req.body), ...newFields };
   const result = User.safeParse(item);
-  // console.log('postUser wrong input', JSON.stringify(item), JSON.stringify(result.error?.format()))
+  console.log('postUser wrong input', JSON.stringify(result))
   if(!result.success) {
     res.status(400).json({error: result.error.format()});
   }
@@ -102,10 +102,11 @@ export async function postUser(req: Request, res: Response) {
     ConditionExpression: "attribute_not_exists(userId)",
   };
   try {
+    console.log('postUser hit!');
     const command = new PutCommand(params);
-    console.log('postUser command', JSON.stringify(command));
+    // console.log('postUser command', JSON.stringify(command));
     const response = await docClient.send(command);
-    console.log('postUser response', JSON.stringify(response));
+    // console.log('postUser response', JSON.stringify(response));
     if(response.$metadata.httpStatusCode === 200) {
       res.status(200).json(item);
     } else {
@@ -206,9 +207,9 @@ export async function deleteUser(req: Request<Params>, res: Response) {
 app.delete("/users/:userId", deleteUser);
 
 app.use((req, res) => {
-  return res.status(404).json({
+  res.status(404).json({
     error: "Page Not Found",
   });
 });
 
-exports.handler = serverless(app);
+export const handler = serverless(app);

@@ -23,28 +23,28 @@ describe('(should return status 500) when', () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });
-  it.only('inserting a new user', async () => {
+  it('inserting a new user', async () => {
     const mockReq = mockRequestWithParams(undefined, mockUser);
     const mockRes = mockResponse();
     await postUser(mockReq as Request<Params>, mockRes as Response);
     expect(mockRes.status).toHaveBeenCalledWith(500);
     expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({error: 'Could not create user'}));
   });
-  it.only('getting a user', async () => {
+  it('getting a user', async () => {
     const mockReq = mockRequestWithParams({userId: mockUser.userId});
     const mockRes = mockResponse();
     await getUser(mockReq as Request<Params>, mockRes as Response);
     expect(mockRes.status).toHaveBeenCalledWith(500);
     expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({error: 'Could not retrieve user'}));
   });
-  it.only('updating a user', async () => {
+  it('updating a user', async () => {
     const mockReq = mockRequestWithParams({userId: mockUser.userId}, { lastName: 'banana' });
     const mockRes = mockResponse();
     await updateUser(mockReq as Request<Params>, mockRes as Response);
     expect(mockRes.status).toHaveBeenCalledWith(500);
     expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({error: 'Could not update user'}));
   });
-  it.only('deleting a user', async () => {
+  it('deleting a user', async () => {
     const mockReq = mockRequestWithParams({userId: mockUser.userId});
     const mockRes = mockResponse();
     await deleteUser(mockReq as Request<Params>, mockRes as Response);
