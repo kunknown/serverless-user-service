@@ -152,12 +152,10 @@ describe('Lambda function users', () => {
     });
     it('should update item in table', async () => {
       const updatedItem = await testDocClient.send(new UpdateCommand({TableName: tableName, Key: {userId: mockUser.userId}, ExpressionAttributeNames: {"#lN": "lastName"}, ExpressionAttributeValues: {":l": "potato"}, UpdateExpression: "SET #lN = :l", ReturnValues: "ALL_NEW"}));
-      // const {Item} = await testDocClient.send(new GetCommand({TableName: tableName, Key: {userId: mockUser.userId}}));
       expect(updatedItem.Attributes).toEqual({...mockUser, lastName: "potato"});
     });
     it('should delete item from table', async () => {
       const deletedItem = await testDocClient.send(new DeleteCommand({TableName: tableName, Key: {userId: mockUser.userId}, ReturnValues: "ALL_OLD"}));
-      // const response = await testDocClient.send(new GetCommand({TableName: tableName, Key: {userId: mockUser.userId}}));
       expect(deletedItem.Attributes).toEqual({...mockUser, lastName: "potato"});
     });
   });

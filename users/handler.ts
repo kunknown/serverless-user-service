@@ -22,15 +22,11 @@ import { Params, User, UserId } from "./lib/types-interfaces";
 
 dotenv.config();
 const app = express();
-// console.log('JEST_WORKER_ID:', process.env.JEST_WORKER_ID);
 const isTest = process.env.JEST_WORKER_ID;
 const isOffline = process.env.IS_OFFLINE;
-// console.log('.env', process.env);
 const USERS_TABLE = process.env.AWS_USERS_TABLE ?? 'users';
-// console.log('user_table,', process.env.USERS_TABLE);
 const client = isOffline || isTest ? new DynamoDBClient(DEV_DB_CLIENT_CONFIG) : new DynamoDBClient();
 export const docClient = isTest ? DynamoDBDocumentClient.from(client, JEST_DYNAMO_DB_DOCUMENT_CLIENT_TRANSLATE_CONFIG) : DynamoDBDocumentClient.from(client);
-// console.log('docClient: ', isTest, JSON.stringify(docClient));
 
 const User = z.object({
   userId: z.string(),
@@ -44,18 +40,6 @@ const User = z.object({
 
 app.use(express.json());
 
-// export async function getHello(req: Request<Params>, res: Response) {
-//   const { userId }: {userId: UserId} = req.params;
-//   const result = z.string().pipe(z.coerce.number()).safeParse(userId);
-//   if(!result.success) {
-//     return res.status(400).json({error: result.error.format()._errors});
-//   } else {
-//     return res.status(200).json(`hello world! ${result.data}`);
-//   }
-// }
-
-// app.get("/hello/:userId", getHello);
-
 export async function getUser(req: Request<Params>, res: Response) {
   console.log('/users/:userId API hit!')
   const {userId}: {userId: UserId} = req.params;
@@ -68,9 +52,7 @@ export async function getUser(req: Request<Params>, res: Response) {
   try {
     const command = new GetCommand(params);
     const response = await docClient.send(command);
-    // console.log('docClient.send', docClient.send(command));
     console.log('response', response);
-    // const Item = response.Item as User;
     if (response.Item) {
       return res.status(200).json(response.Item as User);
     } else {
@@ -104,9 +86,7 @@ export async function postUser(req: Request, res: Response) {
   try {
     console.log('postUser hit!');
     const command = new PutCommand(params);
-    // console.log('postUser command', JSON.stringify(command));
     const response = await docClient.send(command);
-    // console.log('postUser response', JSON.stringify(response));
     if(response.$metadata.httpStatusCode === 200) {
       return res.status(200).json(item);
     } else {
@@ -140,7 +120,6 @@ export async function updateUser(req: Request<Params>, res: Response) {
     updateExpression = updateExpression.concat(` #${userExpName} = :${userExpName},`);
   });
   updateExpression = updateExpression.substring(0, updateExpression.length-1);
-  // console.log('updateExpression', updateExpression);
   const params: UpdateCommandInput = {
     TableName: USERS_TABLE,
     Key: {
@@ -155,9 +134,6 @@ export async function updateUser(req: Request<Params>, res: Response) {
   try {
     const command = new UpdateCommand(params);
     const response = await docClient.send(command);
-    // console.log('docClient.send', docClient.send(command));
-    // console.log('response', response);
-    // const Item = response.Attributes as User;
     if (response.Attributes && Object.keys(response.Attributes).length > 0) {
       return res.status(200).json(response.Attributes as User);
     }
@@ -184,13 +160,9 @@ export async function deleteUser(req: Request<Params>, res: Response) {
     },
     ReturnValues: "ALL_OLD"
   };
-  // console.log('userId', userId);
   try {
     const command = new DeleteCommand(params);
     const response = await docClient.send(command);
-    // console.log('docClient.send', docClient.send(command));
-    // console.log('deleteUser response', response);
-    // const Item = response.Attributes as User;
     if (response.Attributes && Object.keys(response.Attributes).length > 0) {
       return res.status(200).json(response.Attributes as User);
     } else {
