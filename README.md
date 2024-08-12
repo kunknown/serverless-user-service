@@ -11,7 +11,6 @@ This is a CRUD (Create, Read, Update, Delete) User microservice hosted on AWS (L
 ## Setup
 1. Clone repository using `git clone https://github.com/kunknown/serverless-user-service.git`.
 2. Switch to the `users` folder using `cd ./users/` and install dependencies using `npm install`.
-3. TODO: link AWS CLI to AWS account
 4. Add mock credentials to AWS CLI using `npm run aws:config`:
   - AWS Access Key ID [None]: fakeAccessKeyId
   - AWS Secret Access Key [None]: fakeSecretAccessKey
@@ -19,11 +18,14 @@ This is a CRUD (Create, Read, Update, Delete) User microservice hosted on AWS (L
   - Default output format [None]: json
 5. Extract the downloaded DynamoDB local (.zip or similar) file in the `dynamodb-local` folder.
 6. Start local DynamoDB using `npm run db:local`.
-  - Then open a new shell or terminal window and create a new table using `npm run db:create-table`.
+  - Then open a new terminal window and create a new table using `npm run db:create-table`.
   - Check whether the `users` table has been created using `npm run db:list-tables`.
 
 ## Deployment
 1. Deploy to your AWS using `npm run deploy`.
+  - When asked to login/register or enter your license keys, select `Login/Register`.
+  - Once redirected to a page on a browser, log into your AWS account.
+  - After successful login, go back to the terminal and wait for the deployment confirmation.
 
 ## Local Testing
 1. Switch to the "users" folder using `cd ./users/`.
@@ -33,7 +35,7 @@ This is a CRUD (Create, Read, Update, Delete) User microservice hosted on AWS (L
   ```
   aws dynamodb put-item --table-name users --item '{\"userId\": {\"S\": \"123\"}, \"firstName\": {\"S\": \"John\"}, \"lastName\": {\"S\": \"Doe\"}, \"email\": {\"S\": \"john.doe@email.com\"}, \"dob\": {\"S\": \"2000-01-01\"}}' --endpoint-url http://localhost:8001
   ```
-  and check using `npm run db:scan`.
+  and check using `http://localhost:3000/users/123` or `npm run db:scan`.
   - Read an existing item using `http://localhost:3000/users/123` or
   ```
   aws dynamodb get-item --table-name users --key '{\"userId\": {\"S\": \"123\"}}' --endpoint-url http://localhost:8001
