@@ -161,17 +161,4 @@ describe('Lambda function users', () => {
       expect(deletedItem.Attributes).toEqual({...mockUser, lastName: "potato"});
     });
   });
-
-  it.skip('adHoc delete item from DynamoDB', async () => {
-    const mockReq = mockRequestWithParams({userId: '2'});
-    const mockRes = mockResponse();
-    await deleteUser(mockReq as Request<Params>, mockRes as Response);
-    expect(mockRes.status).toHaveBeenCalledWith(200);
-  });
-  it.skip('adHoc insert item from DynamoDB', async () => {
-    const mockReq = mockRequestWithParams(undefined, {...mockUserDefault, userId: '0'});
-    const mockRes = mockResponse();
-    await postUser(mockReq as Request<Params>, mockRes as Response);
-    expect(mockRes.status).toHaveBeenCalledWith(200);
-  });
 });

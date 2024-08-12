@@ -48,9 +48,9 @@ app.use(express.json());
 //   const { userId }: {userId: UserId} = req.params;
 //   const result = z.string().pipe(z.coerce.number()).safeParse(userId);
 //   if(!result.success) {
-//     res.status(400).json({error: result.error.format()._errors});
+//     return res.status(400).json({error: result.error.format()._errors});
 //   } else {
-//     res.status(200).json(`hello world! ${result.data}`);
+//     return res.status(200).json(`hello world! ${result.data}`);
 //   }
 // }
 
@@ -72,7 +72,7 @@ export async function getUser(req: Request<Params>, res: Response) {
     console.log('response', response);
     // const Item = response.Item as User;
     if (response.Item) {
-      res.status(200).json(response.Item as User);
+      return res.status(200).json(response.Item as User);
     } else {
       res
         .status( 404)
@@ -80,7 +80,7 @@ export async function getUser(req: Request<Params>, res: Response) {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Could not retrieve user",  message: (error as Error).message });
+    return res.status(500).json({ error: "Could not retrieve user",  message: (error as Error).message });
   }
 }
 
@@ -93,7 +93,7 @@ export async function postUser(req: Request, res: Response) {
   const result = User.safeParse(item);
   console.log('postUser wrong input', JSON.stringify(result))
   if(!result.success) {
-    res.status(400).json({error: result.error.format()});
+    return res.status(400).json({error: result.error.format()});
   }
   const params: PutCommandInput = {
     TableName: USERS_TABLE,
@@ -108,7 +108,7 @@ export async function postUser(req: Request, res: Response) {
     const response = await docClient.send(command);
     // console.log('postUser response', JSON.stringify(response));
     if(response.$metadata.httpStatusCode === 200) {
-      res.status(200).json(item);
+      return res.status(200).json(item);
     } else {
       res
         .status(404)
@@ -116,7 +116,7 @@ export async function postUser(req: Request, res: Response) {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Could not create user", message: (error as Error).message });
+    return res.status(500).json({ error: "Could not create user", message: (error as Error).message });
   }
 }
 
@@ -128,7 +128,7 @@ export async function updateUser(req: Request<Params>, res: Response) {
   const item: Partial<User> = {...(req.body), ...newFields};
   const result = User.partial().safeParse(item);
   if(!result.success) {
-    res.status(400).json({error: result.error.format()});
+    return res.status(400).json({error: result.error.format()});
   }
   let updateExpression = 'SET';
   const expressionAttributeNames: {[key: string]: string} = {};
@@ -159,7 +159,7 @@ export async function updateUser(req: Request<Params>, res: Response) {
     // console.log('response', response);
     // const Item = response.Attributes as User;
     if (response.Attributes && Object.keys(response.Attributes).length > 0) {
-      res.status(200).json(response.Attributes as User);
+      return res.status(200).json(response.Attributes as User);
     }
   } catch (error) {
     console.error(error);
@@ -168,7 +168,7 @@ export async function updateUser(req: Request<Params>, res: Response) {
       .status(404)
       .json({ error: `Could not find the user with userId: ${userId}` });
     } else {
-      res.status(500).json({ error: "Could not update user",  message: (error as Error).message });
+      return res.status(500).json({ error: "Could not update user",  message: (error as Error).message });
     }
   }
 }
@@ -192,7 +192,7 @@ export async function deleteUser(req: Request<Params>, res: Response) {
     // console.log('deleteUser response', response);
     // const Item = response.Attributes as User;
     if (response.Attributes && Object.keys(response.Attributes).length > 0) {
-      res.status(200).json(response.Attributes as User);
+      return res.status(200).json(response.Attributes as User);
     } else {
       res
         .status(404)
@@ -200,14 +200,14 @@ export async function deleteUser(req: Request<Params>, res: Response) {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Could not delete user", message: (error as Error).message });
+    return res.status(500).json({ error: "Could not delete user", message: (error as Error).message });
   }
 }
 
 app.delete("/users/:userId", deleteUser);
 
-app.use((req, res) => {
-  res.status(404).json({
+app.use((req: Request, res: Response) => {
+  return res.status(404).json({
     error: "Page Not Found",
   });
 });

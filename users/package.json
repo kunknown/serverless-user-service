@@ -34,8 +34,8 @@
     "lint": "npx eslint ./ --fix",
     "db:local": "cd .. && cd dynamodb-local && java -D'java.library.path=./DynamoDBLocal_lib' -jar DynamoDBLocal.jar  -port 8001",
     "db:list-tables": "aws dynamodb list-tables --endpoint-url http://localhost:8001",
-    "db:scan": "aws dynamodb scan --table-name users --endpoint-url http://localhost:8001",
     "db:create-table": "aws dynamodb create-table --table-name users --attribute-definitions AttributeName=userId,AttributeType=S --key-schema AttributeName=userId,KeyType=HASH --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --endpoint-url http://localhost:8001",
-    "aws:config" : "aws configure"
+    "aws:config" : "aws configure",
+    "db:scan": "aws dynamodb scan --table-name users --endpoint-url http://localhost:8001"
   }
 }
